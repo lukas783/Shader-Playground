@@ -1,0 +1,23 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel SpawnParticles
+
+struct Particle {
+	float3 position;
+	float3 velocity;
+	float currTime;
+	float lifeTime;
+};
+
+RWStructuredBuffer<Particle> particleBuffer;
+
+float deltaTime;
+float gameTime;
+
+[numthreads(256,1,1)]
+void SpawnParticles(uint3 id : SV_DispatchThreadID) {
+	particleBuffer[id.x].position += normalize(particleBuffer[id.x].velocity) * deltaTime;
+	if(particleBuffer[id.x].currTime < gameTime) {
+		particleBuffer[id.x].position = float3(0,10,0);
+		particleBuffer[id.x].currTime += particleBuffer[id.x].lifeTime;
+	}
+}
